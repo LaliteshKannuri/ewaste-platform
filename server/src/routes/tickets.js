@@ -5,16 +5,31 @@ const { assignOptimalCenter } = require('../services/routing');
 
 router.post('/', async (req, res) => {
   try {
-    const { user_id, waste_type, weight, pickup_date, coordinates } = req.body;
+    const { waste_type, weight, pickup_date, coordinates } = req.body;
+
+    // Create a guest user for demo purposes
+    const User = require('../models/User');
+    const guestUser = await User.create({
+      name: 'Guest User',
+      email: `guest_${Date.now()}@ewaste.com`,
+      address: 'Hyderabad',
+      coordinates: { type: 'Point', coordinates }
+    });
+
     const center = await assignOptimalCenter(coordinates, waste_type);
     if (!center) {
       return res.status(422).json({ message: 'No available centers near you.' });
     }
+
     const ticket = await Ticket.create({
-      user_id, waste_type, weight, pickup_date,
+      user_id: guestUser._id,
+      waste_type,
+      weight,
+      pickup_date,
       assigned_center_id: center._id,
       pickup_coordinates: { type: 'Point', coordinates }
     });
+
     res.status(201).json(ticket);
   } catch (err) {
     res.status(500).json({ message: err.message });
