@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE = 'http://localhost:5000/api'
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 export const createTicket = (data) => axios.post(`${BASE}/tickets`, data)
 export const getTickets = () => axios.get(`${BASE}/tickets`)
